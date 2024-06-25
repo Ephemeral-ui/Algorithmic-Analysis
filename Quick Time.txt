@@ -1,0 +1,83 @@
+//Quick
+
+#include <iostream>
+#include <vector>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+struct OperationCount {
+    int comparisons = 0;
+    int assignments = 0;
+
+    void reset() {
+        comparisons = 0;
+        assignments = 0;
+    }
+
+    void print() const {
+        cout << "Operation Count:" << endl;
+        cout << "Comparisons: " << comparisons << endl;
+        cout << "Assignments: " << assignments << endl;
+    }
+
+    int total() const {
+        return comparisons + assignments;
+    }
+};
+
+int partition(vector<int>& arr, int low, int high, OperationCount& opCount) {
+    int pivot = arr[high];
+    int i = low - 1;
+
+    for (int j = low; j < high; j++) {
+        opCount.comparisons++;
+        if (arr[j] < pivot) {
+            i++;
+            swap(arr[i], arr[j]);
+            opCount.assignments += 3; // Swap operation involves three assignments
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    opCount.assignments += 3; // Swap operation involves three assignments
+    return i + 1;
+}
+
+void quickSort(vector<int>& arr, int low, int high, OperationCount& opCount) {
+    if (low < high) {
+        int pi = partition(arr, low, high, opCount);
+        quickSort(arr, low, pi - 1, opCount);
+        quickSort(arr, pi + 1, high, opCount);
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    cout << "Enter the elements: ";
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+
+    OperationCount opCount;
+
+    auto start = high_resolution_clock::now(); // Start time
+    quickSort(arr, 0, n - 1, opCount);
+    auto stop = high_resolution_clock::now(); // End time
+
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    cout << "Sorted array: ";
+    for (const int& num : arr)
+        cout << num << " ";
+    cout << endl;
+
+    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+    opCount.print();
+    cout << "Total operations: " << opCount.total() << endl;
+
+    return 0;
+}

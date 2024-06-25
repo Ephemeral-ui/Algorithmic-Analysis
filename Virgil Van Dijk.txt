@@ -1,0 +1,102 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+const int INF = numeric_limits<int>::max();
+
+struct OperationCount {
+    int comparisons = 0;
+    int assignments = 0;
+
+    void reset() {
+        comparisons = 0;
+        assignments = 0;
+    }
+
+    void print() const {
+        cout << "Operation Count:" << endl;
+        cout << "Comparisons: " << comparisons << endl;
+        cout << "Assignments: " << assignments << endl;
+    }
+
+    int total() const {
+        return comparisons + assignments;
+    }
+};
+
+int minDistance(const vector<int>& dist, const vector<bool>& sptSet, int V, OperationCount& opCount) {
+    int min = INF, min_index;
+
+    for (int v = 0; v < V; v++) {
+        opCount.comparisons++;
+        if (!sptSet[v] && dist[v] <= min) {
+            min = dist[v];
+            min_index = v;
+            opCount.assignments += 2;
+        }
+    }
+
+    return min_index;
+}
+
+void dijkstra(const vector<vector<int>>& graph, int src, OperationCount& opCount) {
+    int V = graph.size();
+    vector<int> dist(V, INF);
+    vector<bool> sptSet(V, false);
+
+    dist[src] = 0;
+    opCount.assignments++;
+
+    for (int count = 0; count < V - 1; count++) {
+        int u = minDistance(dist, sptSet, V, opCount);
+
+        sptSet[u] = true;
+        opCount.assignments++;
+
+        for (int v = 0; v < V; v++) {
+            opCount.comparisons++;
+            if (!sptSet[v] && graph[u][v] && dist[u] != INF && dist[u] + graph[u][v] < dist[v]) {
+                dist[v] = dist[u] + graph[u][v];
+                opCount.assignments++;
+            }
+        }
+    }
+
+    cout << "Vertex \t Distance from Source" << endl;
+    for (int i = 0; i < V; i++)
+        cout << i << " \t\t " << dist[i] << endl;
+}
+
+int main() {
+    int V;
+    cout << "Enter the number of vertices: ";
+    cin >> V;
+
+    vector<vector<int>> graph(V, vector<int>(V));
+    cout << "Enter the adjacency matrix:" << endl;
+    for (int i = 0; i < V; i++)
+        for (int j = 0; j < V; j++)
+            cin >> graph[i][j];
+
+    int src;
+    cout << "Enter the source vertex: ";
+    cin >> src;
+
+    OperationCount opCount;
+
+    auto start = high_resolution_clock::now(); // Start time
+    dijkstra(graph, src, opCount);
+    auto stop = high_resolution_clock::now(); // End time
+
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+    opCount.print();
+    cout << "Total operations: " << opCount.total() << endl;
+
+    return 0;
+}

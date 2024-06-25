@@ -1,0 +1,75 @@
+#include <iostream>
+#include <list>
+using namespace std;
+
+// Define the structure for a node in the graph
+struct Node {
+    int value;
+    list<Node*> neighbors;
+};
+
+// Function to create a new node
+Node* newNode(int value) {
+    Node* node = new Node;
+    node->value = value;
+    return node;
+}
+
+// Function to add an edge between two nodes
+void addEdge(Node* u, Node* v) {
+    u->neighbors.push_back(v);
+    v->neighbors.push_back(u); // For undirected graph
+}
+
+// Function to perform BFS and print the traversal
+void BFS(Node* root, int target) {
+    if (root == nullptr) {
+        cout << "Graph is empty." << endl;
+        return;
+    }
+
+    // Initialize the queue with a dummy node to simplify the implementation
+    Node* queue[100]; // Assuming a maximum size of 100 for the queue
+    int front = 0, back = 0;
+    queue[back++] = root;
+
+    bool found = false;
+    while (front != back) {
+        Node* current = queue[front++];
+        cout << "Visiting node: " << current->value << endl; // Print the current node's value
+        if (current->value == target) {
+            found = true;
+            break;
+        }
+        for (Node* neighbor : current->neighbors) {
+            queue[back++] = neighbor;
+        }
+    }
+
+    if (found) {
+        cout << "Target " << target << " found in the graph." << endl;
+    } else {
+        cout << "Target " << target << " not found in the graph." << endl;
+    }
+}
+
+// Main function
+int main() {
+    // Create a graph
+    Node* node1 = newNode(1);
+    Node* node2 = newNode(2);
+    Node* node3 = newNode(3);
+    Node* node4 = newNode(4);
+    Node* node5 = newNode(5);
+
+    addEdge(node1, node2);
+    addEdge(node1, node3);
+    addEdge(node2, node4);
+    addEdge(node2, node5);
+
+    // Perform BFS
+    int target = 5;
+    BFS(node1, target);
+
+    return 0;
+}

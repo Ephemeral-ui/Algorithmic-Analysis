@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+struct OperationCount {
+    int comparisons = 0;
+    int assignments = 0;
+
+    void reset() {
+        comparisons = 0;
+        assignments = 0;
+    }
+
+    void print() const {
+        cout << "Operation Count:" << endl;
+        cout << "Comparisons: " << comparisons << endl;
+        cout << "Assignments: " << assignments << endl;
+    }
+
+    int total() const {
+        return comparisons + assignments;
+    }
+};
+
+void insertionSort(vector<int>& arr, OperationCount& opCount) {
+    int n = arr.size();
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        opCount.assignments++;
+        int j = i - 1;
+
+        while (j >= 0) {
+            opCount.comparisons++;
+            if (arr[j] > key) {
+                arr[j + 1] = arr[j];
+                opCount.assignments++;
+                j--;
+            } else {
+                break;
+            }
+        }
+        arr[j + 1] = key;
+        opCount.assignments++;
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    cout << "Enter the elements: ";
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+
+    OperationCount opCount;
+
+    auto start = high_resolution_clock::now(); // Start time
+    insertionSort(arr, opCount);
+    auto stop = high_resolution_clock::now(); // End time
+
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    cout << "Sorted array: ";
+    for (const int& num : arr)
+        cout << num << " ";
+    cout << endl;
+
+    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+    opCount.print();
+    cout << "Total operations: " << opCount.total() << endl;
+
+    return 0;
+}

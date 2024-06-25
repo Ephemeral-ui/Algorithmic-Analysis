@@ -1,0 +1,75 @@
+//bubble sort
+
+#include <iostream>
+#include <vector>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+struct OperationCount {
+    int comparisons = 0;
+    int assignments = 0;
+
+    void reset() {
+        comparisons = 0;
+        assignments = 0;
+    }
+
+    void print() const {
+        cout << "Operation Count:" << endl;
+        cout << "Comparisons: " << comparisons << endl;
+        cout << "Assignments: " << assignments << endl;
+    }
+
+    int total() const {
+        return comparisons + assignments;
+    }
+};
+
+void bubbleSort(vector<int>& arr, OperationCount& opCount) {
+    int n = arr.size();
+    bool swapped;
+    for (int i = 0; i < n-1; i++) {
+        swapped = false;
+        for (int j = 0; j < n-i-1; j++) {
+            opCount.comparisons++;
+            if (arr[j] > arr[j+1]) {
+                swap(arr[j], arr[j+1]);
+                opCount.assignments += 3; // Each swap counts as 3 assignments
+                swapped = true;
+            }
+        }
+        if (!swapped) break; // If no elements were swapped, the array is already sorted
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    cout << "Enter the elements: ";
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+
+    OperationCount opCount;
+
+    auto start = high_resolution_clock::now(); // Start time
+    bubbleSort(arr, opCount);
+    auto stop = high_resolution_clock::now(); // End time
+
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    cout << "Sorted array: ";
+    for (const int& num : arr)
+        cout << num << " ";
+    cout << endl;
+
+    cout << "Time taken by Bubble Sort function: " << duration.count() << " microseconds" << endl;
+    opCount.print();
+    cout << "Total operations: " << opCount.total() << endl;
+
+    return 0;
+}

@@ -1,0 +1,115 @@
+//Merge
+
+#include <iostream>
+#include <vector>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+struct OperationCount {
+    int comparisons = 0;
+    int assignments = 0;
+
+    void reset() {
+        comparisons = 0;
+        assignments = 0;
+    }
+
+    void print() const {
+        cout << "Operation Count:" << endl;
+        cout << "Comparisons: " << comparisons << endl;
+        cout << "Assignments: " << assignments << endl;
+    }
+
+    int total() const {
+        return comparisons + assignments;
+    }
+};
+
+void merge(vector<int>& arr, int left, int mid, int right, OperationCount& opCount) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    vector<int> L(n1), R(n2);
+
+    for (int i = 0; i < n1; i++) {
+        L[i] = arr[left + i];
+        opCount.assignments++;
+    }
+    for (int j = 0; j < n2; j++) {
+        R[j] = arr[mid + 1 + j];
+        opCount.assignments++;
+    }
+
+    int i = 0, j = 0, k = left;
+
+    while (i < n1 && j < n2) {
+        opCount.comparisons++;
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            opCount.assignments++;
+            i++;
+        } else {
+            arr[k] = R[j];
+            opCount.assignments++;
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        arr[k] = L[i];
+        opCount.assignments++;
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        arr[k] = R[j];
+        opCount.assignments++;
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(vector<int>& arr, int left, int right, OperationCount& opCount) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+
+        mergeSort(arr, left, mid, opCount);
+        mergeSort(arr, mid + 1, right, opCount);
+
+        merge(arr, left, mid, right, opCount);
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    cout << "Enter the elements: ";
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+
+    OperationCount opCount;
+
+    auto start = high_resolution_clock::now(); // Start time
+    mergeSort(arr, 0, n - 1, opCount);
+    auto stop = high_resolution_clock::now(); // End time
+
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    cout << "Sorted array: ";
+    for (const int& num : arr)
+        cout << num << " ";
+    cout << endl;
+
+    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+    opCount.print();
+    cout << "Total operations: " << opCount.total() << endl;
+
+    return 0;
+}

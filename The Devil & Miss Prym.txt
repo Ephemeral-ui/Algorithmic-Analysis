@@ -1,0 +1,74 @@
+//prim's
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <climits>
+#include <chrono>
+using namespace std;
+using namespace std::chrono;
+// Structure to represent an edge in the graph
+struct Edge {
+int dest;
+int weight;
+};
+// Structure to represent a node in the priority queue
+struct Node {
+int vertex;
+int key;
+};
+// Comparator for priority queue
+struct CompareKey {
+bool operator()(const Node& a, const Node& b) {
+return a.key > b.key;
+}
+};
+// Function to perform Prim's algorithm
+void primMST(vector<vector<Edge>>& graph, int V) {
+auto start = high_resolution_clock::now();
+vector<int> parent(V, -1); // Stores parent of each vertex in MST
+vector<int> key(V, INT_MAX); // Key values used to pick minimum weight edge
+vector<bool> inMST(V, false); // To represent vertices included in MST
+priority_queue<Node, vector<Node>, CompareKey> pq;
+// Start from vertex 0
+int src = 0;
+key[src] = 0;
+pq.push({src, 0});
+while (!pq.empty()) {
+int u = pq.top().vertex;
+pq.pop();
+inMST[u] = true;
+for (const Edge& edge : graph[u]) {
+int v = edge.dest;
+int weight = edge.weight;
+if (!inMST[v] && weight < key[v]) {
+key[v] = weight;
+parent[v] = u;
+pq.push({v, key[v]});
+}
+}
+}
+auto stop = high_resolution_clock::now();
+auto duration = duration_cast<microseconds>(stop - start);
+// Display MST and time complexity
+cout << "Minimum Spanning Tree (MST):" << endl;
+for (int i = 1; i < V; ++i) {
+cout << parent[i] << " - " << i << " : " << key[i] << endl;
+}
+cout << "Time Complexity: " << duration.count() << " microseconds" << endl;
+}
+int main() {
+int V, E;
+cout << "Enter the number of vertices and edges: ";
+cin >> V >> E;
+vector<vector<Edge>> graph(V);
+cout << "Enter the edges (source destination weight):" << endl;
+for (int i = 0; i < E; ++i) {
+int src, dest, weight;
+cin >> src >> dest >> weight;
+graph[src].push_back({dest, weight});
+graph[dest].push_back({src, weight}); // Assuming undirected graph
+}
+primMST(graph, V);
+return 0;
+}

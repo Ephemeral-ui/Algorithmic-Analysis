@@ -1,0 +1,68 @@
+#include <iostream>
+#include <vector>
+#include <list>
+using namespace std;
+
+// Define the structure for a node in the graph
+struct Node {
+    int value;
+    list<Node*> neighbors;
+};
+
+// Function to create a new node
+Node* newNode(int value) {
+    Node* node = new Node;
+    node->value = value;
+    return node;
+}
+
+// Function to add an edge between two nodes
+void addEdge(Node* u, Node* v) {
+    u->neighbors.push_back(v);
+    v->neighbors.push_back(u); // For undirected graph
+}
+
+// Function to perform DFS and print the traversal
+void DFS(Node* node, vector<bool>& visited, int target) {
+    if (node == nullptr) {
+        return;
+    }
+
+    visited[node->value] = true;
+    cout << "Visiting node: " << node->value << endl; // Print the current node's value
+
+    if (node->value == target) {
+        cout << "Target " << target << " found in the graph." << endl;
+        return;
+    }
+
+    for (Node* neighbor : node->neighbors) {
+        if (!visited[neighbor->value]) {
+            DFS(neighbor, visited, target);
+        }
+    }
+}
+
+// Main function
+int main() {
+    // Create a graph
+    Node* node1 = newNode(1);
+    Node* node2 = newNode(2);
+    Node* node3 = newNode(3);
+    Node* node4 = newNode(4);
+    Node* node5 = newNode(5);
+
+    addEdge(node1, node2);
+    addEdge(node1, node3);
+    addEdge(node2, node4);
+    addEdge(node2, node5);
+
+    // Initialize visited vector
+    vector<bool> visited(6, false); // Assuming node values are 1 to 5
+
+    // Perform DFS
+    int target = 5;
+    DFS(node1, visited, target);
+
+    return 0;
+}
