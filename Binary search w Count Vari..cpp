@@ -69,4 +69,7 @@ int main()
 	}
 	cout<<"Total count using Binary Search: "<<count<<endl;
 	return 0;	
+	
 }
+//testing a commit
+
